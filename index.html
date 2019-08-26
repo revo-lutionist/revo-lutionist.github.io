@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Gold Tycoon</title>
+    <link rel="stylesheet" href="./index.css">
+	<script src="./index2.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <span id="left" class="unselectable">
+            <div class="heading">Upgrade</div>
+            <span id="pick_shovel" title="x2 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/pickshovel.png"></img><span> Pick and Shovel (100 gold) (<span id="pick_shovels">0</span>/1)</span></div></span>
+            <span id="worker" title="x2 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/worker.png"></img> Workers (500 gold) (<span id="workers">0</span>/1)</div></span>
+            <span id="caffeine" title="Less sleep = more gold! x2 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/coffee.png"></img> Caffeine (1,000 gold) (<span id="caffeines">0</span>/1)</div></span>
+            <span id="tnt" title="x2 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/tnt.png"></img> TNT (2,000 gold) (<span id="tnts">0</span>/1)</div></span>
+            <span id="dragline" title="x3 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/dragline2.png"></img> Dragline (10,000 gold) (<span id="draglines">0</span>/1)</div></span>
+            <span id="mine" title="x5 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/mine.png"></img> Open-Cut Mine (Land) (<span id="mines">0</span>/1)</div></span>
+            <span id="automated" title="x10 gold / click" onclick="upgrade(this)"><div class="items"><img class="icon" src="./images/automated.png"></img> Automated Mine (AI) (<span id="automateds">0</span>/1)</div></span>
+            <input type="button" class="buttons" id="pause" value="Pause" onclick="pause(this)" />
+            <input type="button" class="buttons" id="save" value="Save" onclick="save(this)" />
+            <input type="button" class="buttons" value="Load Game" onclick="load()" />
+            <input type="button" id="burnCorruption" value="Burn Corruption" title="-5% corruption / 0.1 STEEM; Halved for each extra land" onclick="burnCorruption()" disabled />
+            <input type="button" id="burnDecay" value="Burn Wear & Tear" title="-50 wear & tear / 0.1 STEEM" onclick="burnDecay()" disabled />
+            <div id="stats">
+                <div class="heading2">Stats</div>
+                <div>Net Worth: <span id="countWorth">0</span> Gold</div>
+                <div>Ave Growth Rate: <span id="growthRate">0</span> Gold/sec</div>
+                <div>Highest Ave Growth Rate: <span id="growthRecord">0</span> Gold/sec</div>
+                <div>Gold per Click: <span id="perClick">1</span> Gold</div>
+                <div title="0.25% of gold in hand /sec">Interest: <span id="interest">0</span> Gold/sec</div>
+                <div title="-1% growth / 4000 net worth">Corruption: <span id="corruption">0</span> Gold/sec</div>
+                <div title="Increases with game time">Wear & Tear: <span id="decay">0</span> Gold/sec</div>
+                <div>SKYNET: <span id="skynet">---</span></div>
+                <div>Steem Burnt: <span id="steem">0</span></div>
+                <div>Game Clock: <span id="time">0</span> sec</div>
+            </div>
+        </span>
+        <span id="centre">
+            <div id="totals" class="unselectable">
+                <span id="list">
+                    <span><div id="countGold">0</div><span> Gold </span><div class="divRate1">(<span id="goldRate">0</span><span>/sec)</span></div></span>
+                    <span title="From Factories; Each machine = +10 gold / sec"><div id="countMachines">0</div><span> Machines </span><div class="divRate">(<span id="machineRate">0</span><span>/min)</span></div></span>
+                    <span title="From Factories; Each pollution = -5 gold / sec"><div id="countPollution">0</div><span> Pollution </span><div class="divRate">(<span id="pollutionRate">0</span><span>/min)</span></div></span>
+                </span>        
+            </div>
+            <div id="surface">
+                    <img id="nugget" class="unselectable" src="./images/nugget.png" onmousedown="scaleUp(this, event)" onmouseup="scaleDown(this)" onclick="increment()"></img>
+            </div>
+        </span>
+        
+        <span id="right" class="unselectable">
+            <div class="heading">Purchase</div>
+            <span id="market" title="+0.1 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/market.png"></img> Market (<span class="cost" id="marketCost">20</span> gold) (<span id="markets">0</span>/<span id="marketMax">10</span>)</div></span>
+            <span id="tradingPost" title="+0.5 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/tradingpost.png"></img> Trading Post (<span class="cost" id="tradingPostCost">60</span> gold) (<span id="tradingPosts">0</span>/<span id="tradingPostMax">10</span>)</div></span>
+            <span id="bank" title="+3 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/bank.png"></img> Bank (<span class="cost" id="bankCost">300</span> gold) (<span id="banks">0</span>/<span id="bankMax">5</span>)</div></span>
+            <span id="stockMarket" title="+60 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/stockmarket.png"></img> Stockmarket (<span class="cost" id="stockmarketCost">5,000</span> gold) (<span id="stockmarkets">0</span>/<span id="stockmarketMax">2</span>)</div></span>
+            <span id="factory" title="+1 machine / min; +2 pollution / min" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/factory.png"></img> Factory (<span class="cost" id="factoryCost">250</span> gold) (<span id="factories">0</span>/<span id="factoryMax">5</span>)</div></span>
+            <span id="recyclingCentre" title="-1 pollution / min" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/recycle.png"></img> Recycling Centre (<span class="cost" id="recyclingCost">250</span> gold) (<span id="recyclingCentres">0</span>/<span id="recyclingMax">5</span>)</div></span>
+            <span id="courthouse" title="-5% corruption" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/courthouse.png"></img> Courthouse (<span class="cost" id="courthouseCost">350</span> gold) (<span id="courthouses">0</span>/<span id="courthouseMax">5</span>)</div></span>
+            <span id="land" title="Expand, more buildings! Halve corruption and wear & tear" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/land.png"></img> Land (<span class="cost" id="landCost">100,000</span> gold) (<span id="lands">0</span>/<span id="landMax">5</span>)</div></span>
+            <span id="ai" title="Sentient machines. Beware SKYNET! +1000 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/ai.png"></img> AI (<span class="cost" id="aiCost">1,000,000</span> gold) (<span id="ais">0</span>/<span id="aisMax">1</span>)</div></span>
+        </span>  
+    </div>
+</body>
+
+</html>
