@@ -161,6 +161,23 @@
     transition: opacity 200ms;
 }
 
+#popup {
+    position: absolute;
+    left: 460px;
+    bottom: 115px;
+    width: 240px;
+    height: 110px;
+    opacity: 0;
+    transition: opacity 400ms;
+    border: 1px solid #3C3C3C;
+    border-radius: 5px;
+    background-color: #242424;
+    font-size: 18px;
+    color: #E8E8E8;
+    text-align: center;
+    padding-top: 30px;
+}
+
 .unselectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;

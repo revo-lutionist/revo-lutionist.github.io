@@ -2,7 +2,7 @@ const MACHINE_RATE = 1/60;
 const POLLUTION_RATE = 1/30;
 const CDI_INTERVAL = 51;        // corruption, decay, interest ms interval
 const INTEREST_RATE = 0.0025;    // per second
-const BONUS_TIME = 1000; // ms that bonus clicky will show for
+const BONUS_TIME = 1200; // ms that bonus clicky will show for
 
 objGlobals = {
     mArrIntervalIDs: [],
@@ -69,11 +69,12 @@ objGlobals = {
     mAICount: 0,
     mCorruption: 0,
     mCorruptionOffset: 0,
-    mCorruptionLandOffset: 1,
+    mCorruptionLandOffset: 0,
     mInterest: 0,
     mDecayRate: 0,
     mDecayOffset: 0,     // wear and tear (decay) burn
     mDecayLandOffset: 1,
+    mBonusTimeout: 0,
     mSteemBurnt: 0,
     mRecordRate: 0,
     msStartTime: 0, 
@@ -82,6 +83,10 @@ objGlobals = {
     mTimeOffset: 0,      // handles game timer after game pauses
     //mSecElapsed: 0
 };
+
+window.addEventListener('load', function() {
+    document.getElementById("nugget").ondragstart = function() { return false; };
+});
 
 function increment() {
     if(!objGlobals.mBlnPaused) {
@@ -117,10 +122,15 @@ function startIntervals() {
 }
 
 function bonuses() {
-    var rand = Math.random() * (60 - 20) + 20;   // between 20 and 60 seconds
-    rand = rand*1000;
+    if(!objGlobals.mBlnPaused) {
+        var rand = Math.random() * (30 - 10) + 10;   // between 10 and 30 seconds
+        rand = rand*1000;
 
-    setTimeout(bonus, rand);
+        objGlobals.mBonusTimeout = setTimeout(bonus, rand);
+    } else {
+        clearTimeout(objGlobals.mBonusTimeout);
+    }
+    
 }
 
 function bonus() {
@@ -129,26 +139,54 @@ function bonus() {
         // popup more frequently towards end of skynet, if possible
     }
 
-    if(objGlobals.mCountWorth > 100 && objGlobals.mCountWorth < 5000) {
+    if(objGlobals.mCountWorth < 10000) {
         //small bonuses
-        var rand = Math.floor((Math.random() * 2) + 1);
+        let rand = Math.floor((Math.random() * 2) + 1);
 
         if(rand === 1) {
-            //luckystrike
-            showBonus("luckystrike", "200");
+            showBonus("luckystrike", "100");
         } else if(rand === 2) {
-            //prospector
             showBonus("prospector", "2")
         }
 
-    } else if(objGlobals.mCountWorth >= 5000 && objGlobals.mCountWorth < 10000) {
-
     } else if(objGlobals.mCountWorth >= 10000 && objGlobals.mCountWorth < 20000) {
+        let rand = Math.floor((Math.random() * 4) + 1);
+
+        if(rand === 1) {
+            showBonus("luckystrike", "200");
+        } else if(rand === 2) {
+            showBonus("prospector", "5");
+        } else if(rand === 3) {
+            showBonus("wd40", "-5");
+        } else if(rand === "sheriff") {
+            showBonus("sheriff", "-5");
+        }
 
     } else if(objGlobals.mCountWorth >= 20000 && objGlobals.mCountWorth < 100000) {
+        let rand = Math.floor((Math.random() * 4) + 1);
         
-    } else {
+        if(rand === 1) {
+            showBonus("luckystrike", "500");
+        } else if(rand === 2) {
+            showBonus("prospector", "10");
+        } else if(rand === 3) {
+            showBonus("wd40", "-10");
+        } else if(rand === "sheriff") {
+            showBonus("sheriff", "-10");
+        }
+    } else if(objGlobals.mCountWorth >= 100000) {
         //large bonuses
+        let rand = Math.floor((Math.random() * 4) + 1);
+        
+        if(rand === 1) {
+            showBonus("luckystrike", "1000");
+        } else if(rand === 2) {
+            showBonus("prospector", "20");
+        } else if(rand === 3) {
+            showBonus("oil", "-20");
+        } else if(rand === "sheriff") {
+            showBonus("sheriff", "-15");
+        }
     }
 
     bonuses();
@@ -161,49 +199,61 @@ function showBonus(bonusType, bonus) {
     img.style.position = "absolute";
     img.style.left = "800px";
     img.style.top = "200px";
-    img.style.width = "150px";
     img.style.zIndex = "10";
     img.dataset.type = bonusType;
     img.dataset.bonus = bonus;
+    img.ondragstart = function() { return false; };
     img.addEventListener("click", clicked);
 
-    document.getElementsByTagName("body")[0].appendChild(img);
+    //document.getElementsByTagName("body")[0].appendChild(img);
+    document.getElementById("surface").appendChild(img);
 
     setTimeout(clearBonus, BONUS_TIME, img);
 }
 
 function clicked(e) {
     var el = e.target;
+    var popup = document.getElementById("popup");
 
     switch (el.dataset.type) {
         case "luckystrike":
             objGlobals.mCountGold += parseInt(el.dataset.bonus);
+            popup.innerHTML = "Eureka! You found " + el.dataset.bonus + " gold";
 
             if(objGlobals.mCountGold < 10000) {
                 document.getElementById("countGold").innerHTML = Math.floor(objGlobals.mCountGold);
             } else {
                 document.getElementById("countGold").innerHTML = (objGlobals.mCountGold/1000).toFixed(1) + "k";
             }
-
             break;
         case "WD40":
-
+            objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
+            popup.innerHTML = "Lubrication! Reduce wear & tear +" + el.dataset.bonus + " gold/sec";
             break;  
         case "prospector":
             objGlobals.mGoldRate += parseInt(el.dataset.bonus);
             document.getElementById("goldRate").innerHTML = objGlobals.mGoldRate;
-
+            popup.innerHTML = "Help has arrived! +" + el.dataset.bonus + " gold/sec";
             break;
-
+        case "sheriff":
+            objGlobals.mCorruptionOffset -= parseInt(el.dataset.bonus);
+            popup.innerHTML = "There's a new sheriff in town! -" + el.dataset.bonus + " corruption";
+            break;
+        case "oil":
+            objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
+            popup.innerHTML = "Lubrication! Reduce wear & tear +" + el.dataset.bonus + " gold/sec";
+            break;
     }
 
-    var bonus = el.dataset.bonus;
+    popup.style.opacity = "100";
+    setTimeout(function(){ popup.style.opacity = "0"; }, 2000);
+    
 }
 
 function clearBonus(el) {
     el.style.opacity = "0";
 
-    setTimeout(function(){ document.getElementsByTagName("body")[0].removeChild(el); }, 500);
+    setTimeout(function(){ document.getElementById("surface").removeChild(el); }, 300);
 }
 
 function purchase(el) {
@@ -258,7 +308,6 @@ function purchase(el) {
         document.getElementById("factories").innerHTML = objGlobals.mFactoryCount;
 
         //increase machine rate
-        /* objGlobals.mArrMachineIntervals.push(setInterval(incrementMachines, 1000/MACHINE_RATE)); */
         objGlobals.mMachineRate += MACHINE_RATE;    // MACHINE_RATE machines per second
         clearInterval(objGlobals.mMachineInterval);
         objGlobals.mMachineInterval = setInterval(incrementMachines, 1000, objGlobals.mMachineRate);
@@ -268,10 +317,6 @@ function purchase(el) {
 
 
         //increase pollution rate
-        /* var pollutionIntervals = objGlobals.mArrPollutionIntervals.length
-        for (var i=0; i<(2*objGlobals.mFactoryCount - pollutionIntervals - objGlobals.mRecyclingCount); i++) {
-            objGlobals.mArrPollutionIntervals.push(setInterval(incrementPollution, 2*1000/POLLUTION_RATE));
-        } */
         objGlobals.mPollutionRate += POLLUTION_RATE;    // POLLUTION_RATE pollution per second
         clearInterval(objGlobals.mPollutionInterval);
         objGlobals.mPollutionInterval = setInterval(incrementPollution, 1000, objGlobals.mPollutionRate);
@@ -405,7 +450,7 @@ function purchase(el) {
         objGlobals.mLandMultiplier += 1;
 
         //halve corruption and decay
-        objGlobals.mCorruptionLandOffset = 0.5/objGlobals.mLandCount;
+        objGlobals.mCorruptionLandOffset += (objGlobals.mCorruption/2) * -1;
         objGlobals.mDecayLandOffset += (objGlobals.mDecayRate/2) * -1;
 
         objGlobals.mLandCost *= (1.1 + (0.1 * objGlobals.mLandCount));
@@ -436,10 +481,10 @@ function purchase(el) {
 }
 
 function upgrade(el) {
-    if(el.id === "pick_shovel" && objGlobals.mCountGold >= 100 && objGlobals.mBlnPickAvailable) {
-        objGlobals.mCountGold = objGlobals.mCountGold-100;
+    if(el.id === "pick_shovel" && objGlobals.mCountGold >= 150 && objGlobals.mBlnPickAvailable) {
+        objGlobals.mCountGold = objGlobals.mCountGold-150;
         
-        if(objGlobals.mCountGold < 100) {
+        if(objGlobals.mCountGold < 150) {
             document.getElementById("pick_shovel").style.color = "#838383";
             document.getElementById("pick_shovel").style.cursor = "default";
         }
@@ -550,33 +595,26 @@ function corruption_decay_interest() {
 
     //interest
     let interest = (objGlobals.mCountGold * INTEREST_RATE * (CDI_INTERVAL/1000));   //INTEREST_RATE is per second, therefore adjust for CDI_INTERVAL
-    interest > 100 ? interest = 100 : true;
+    interest > 100 ? interest = 100 : true; //not working for some reason **********************
 
     if((interest * (1000/CDI_INTERVAL)) < 0.05 ) {
         document.getElementById("interest").innerHTML = (interest * (1000/CDI_INTERVAL)).toFixed(0);  //display interest as per second
     } else {
-        document.getElementById("interest").innerHTML = (interest * (1000/CDI_INTERVAL)).toFixed(1);  //display interest as per second
+        document.getElementById("interest").innerHTML = (interest * (1000/CDI_INTERVAL)).toFixed(1);
     }
 
     //corruption
     let corruption = objGlobals.mCountWorth/2000 + objGlobals.mCorruptionOffset;
-    corruption = corruption * objGlobals.mCorruptionLandOffset; //halves corruption with every extra Land
+    //corruption = corruption * objGlobals.mCorruptionLandOffset; //halves corruption with every extra Land; Problem here I think. Halves future corruption accumulation rate
+    corruption += objGlobals.mCorruptionLandOffset;
     corruption < 0 ? corruptionRate = 0 : true;
+    objGlobals.mCorruption = corruption;
     
     if(corruption < 0.9) {
         document.getElementById("corruption").innerHTML =  "0";
     } else {
         document.getElementById("corruption").innerHTML = "-" + (rate * (corruption/100)).toFixed(0);  //display per second rate
     } 
-
-    //changed corruption to absolute offset, not percentage
-    /* if((rate * (corruption/100)) < 0.5) {
-        document.getElementById("corruption").innerHTML =  "0";
-    } else {
-        document.getElementById("corruption").innerHTML = "-" + (rate * (corruption/100)).toFixed(0);  //display per second rate
-    } 
-
-    corruption = rate * (corruption/100) * (CDI_INTERVAL/1000);    // adjust per second rate to CDI_INTERVAL */
 
     //decay (wear and tear)
     var now = Date.now();
@@ -596,7 +634,6 @@ function corruption_decay_interest() {
         decay.innerHTML = "-" + decayRate.toFixed(0);
     }
 
-    /* let goldRate = rate + interest - (rate * (corruption/100)) - decayRate; */
     let goldRate = rate + interest - corruption - decayRate;
     goldRate < 0 ? goldRate = 0.001 : true;
 
@@ -646,7 +683,7 @@ function gameClock() {
 function burnCorruption() {
     objGlobals.mSteemBurnt += 0.1;
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
-    objGlobals.mCorruptionOffset -= 5;
+    objGlobals.mCorruptionOffset -= (5 * (objGlobals.mLandCount +1));
 }
 
 function burnDecay() {
@@ -654,7 +691,7 @@ function burnDecay() {
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
     objGlobals.mDecayOffset -= 50;
 }
-// ********************** Adjust for new mahcine and pollution interval use
+
 function pause(el) {
     if(objGlobals.mCountWorth > 0) {
         objGlobals.mBlnPaused = true;
@@ -669,14 +706,10 @@ function pause(el) {
         for(let id of objGlobals.mArrIntervalIDs) {
             clearInterval(id);
         }
-/*     
-        for(let id2 of objGlobals.mArrPollutionIntervals) {
-            clearInterval(id2);
-        }
 
-        for(let id3 of objGlobals.mArrMachineIntervals) {
-            clearInterval(id3);
-        } */
+        clearInterval(objGlobals.mMachineInterval);
+        clearInterval(objGlobals.mPollutionInterval);
+        bonuses();  // clears any pending bonus setTimeouts
 
         objGlobals.msPauseTime = Date.now();
         el.value = "Resume";
@@ -686,33 +719,22 @@ function pause(el) {
     }
 }
 
-// ******************** Issue in here. If pause and restart just before new machine/pollution due, then lose that imminent increment *************
-// ******************** Could change to machine/pollution fractions / per second (or whatever interval), like incrementGold **********************
 function resume() {
     objGlobals.msRestartTime = Date.now();
     objGlobals.mTimeOffset += objGlobals.msRestartTime - objGlobals.msPauseTime;
 
     objGlobals.mBlnPaused = false;
-    
-    //corruption_decay_interest();  *not needed when CDI_INTERVAL is low (i.e. fast)
 
     startIntervals();
 
     //start machine creation intervals
-    var machineIntervals = objGlobals.mArrMachineIntervals.length;
-    objGlobals.mArrMachineIntervals.length = 0;
-
-    for(var n = 0; n < machineIntervals; n++) {
-        objGlobals.mArrMachineIntervals.push(setInterval(incrementMachines, 1000/MACHINE_RATE));
-    }
+    objGlobals.mMachineInterval = setInterval(incrementMachines, 1000, objGlobals.mMachineRate);
 
     //start pollution creating intervals.
-    var pollutionIntervals = objGlobals.mArrPollutionIntervals.length;
-    objGlobals.mArrPollutionIntervals.length = 0;
+    objGlobals.mPollutionInterval = setInterval(incrementPollution, 1000, objGlobals.mPollutionRate);
 
-    for(var i = 0; i < pollutionIntervals; i++) {
-        objGlobals.mArrPollutionIntervals.push(setInterval(incrementPollution, 2*1000/POLLUTION_RATE));
-    }
+    //start bonuses again
+    bonuses();
 
     document.getElementById("save").disabled = false;
 }
@@ -793,7 +815,7 @@ function enableBuildings() {
         document.getElementById("land").style.cursor = "default";
         document.getElementById("stockMarket").style.color = "#838383";
         document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "#black";
+        document.getElementById("bank").style.color = "black";
         document.getElementById("bank").style.cursor = "pointer";
         document.getElementById("courthouse").style.color = "black";
         document.getElementById("courthouse").style.cursor = "pointer";
@@ -945,7 +967,7 @@ function enableUpgrades() {
         document.getElementById("pick_shovel").style.color = "black";
         document.getElementById("pick_shovel").style.cursor = "pointer";
         return;
-    } else if(objGlobals.mCountGold >= 100) {
+    } else if(objGlobals.mCountGold >= 150) {
         document.getElementById("dragline").style.color = "838383";
         document.getElementById("dragline").style.cursor = "default";
         document.getElementById("caffeine").style.color = "838383";
