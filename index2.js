@@ -6,8 +6,6 @@ const BONUS_TIME = 1200; // ms that bonus clicky will show for
 
 objGlobals = {
     mArrIntervalIDs: [],
-    mArrMachineIntervals: [],
-    mArrPollutionIntervals: [],
     
     mBlnPaused: false,
     mBlnPickAvailable: true,
@@ -157,9 +155,9 @@ function bonus() {
         } else if(rand === 2) {
             showBonus("prospector", "5");
         } else if(rand === 3) {
-            showBonus("wd40", "-5");
-        } else if(rand === "sheriff") {
-            showBonus("sheriff", "-5");
+            showBonus("wd40", "5");
+        } else if(rand === 4) {
+            showBonus("sheriff", "5");
         }
 
     } else if(objGlobals.mCountWorth >= 20000 && objGlobals.mCountWorth < 100000) {
@@ -170,9 +168,9 @@ function bonus() {
         } else if(rand === 2) {
             showBonus("prospector", "10");
         } else if(rand === 3) {
-            showBonus("wd40", "-10");
-        } else if(rand === "sheriff") {
-            showBonus("sheriff", "-10");
+            showBonus("wd40", "10");
+        } else if(rand === 4) {
+            showBonus("sheriff", "10");
         }
     } else if(objGlobals.mCountWorth >= 100000) {
         //large bonuses
@@ -183,9 +181,9 @@ function bonus() {
         } else if(rand === 2) {
             showBonus("prospector", "20");
         } else if(rand === 3) {
-            showBonus("oil", "-20");
-        } else if(rand === "sheriff") {
-            showBonus("sheriff", "-15");
+            showBonus("oil", "20");
+        } else if(rand === 4) {
+            showBonus("sheriff", "15");
         }
     }
 
@@ -226,7 +224,7 @@ function clicked(e) {
                 document.getElementById("countGold").innerHTML = (objGlobals.mCountGold/1000).toFixed(1) + "k";
             }
             break;
-        case "WD40":
+        case "wd40":
             objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
             popup.innerHTML = "Lubrication! Reduce wear & tear +" + el.dataset.bonus + " gold/sec";
             break;  
@@ -257,7 +255,6 @@ function clearBonus(el) {
 }
 
 function purchase(el) {
-    //###### MARKET #######
     if(el.id === "market" && objGlobals.mCountGold >= objGlobals.mMarketCost && objGlobals.mMarketCount < objGlobals.mMarketMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mMarketCost;
         
@@ -270,13 +267,12 @@ function purchase(el) {
         document.getElementById("markets").innerHTML = objGlobals.mMarketCount;
 
         objGlobals.mGoldRate += 0.1 * objGlobals.mLandMultiplier;
-        objGlobals.mMarketCost *= (1.1 + (0.1 * objGlobals.mLandCount));
+        /* objGlobals.mMarketCost *= (1.1 + (0.1 * objGlobals.mLandCount)); */
+        objGlobals.mMarketCost *= 1.1;
         objGlobals.mMarketCost = objGlobals.mMarketCost.toFixed();
         var cost = checkThousands(objGlobals.mMarketCost);
         document.getElementById("marketCost").innerHTML = cost;
-        document.getElementById("market").title = "+" + (0.1 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
 
-    //###### TRADINGPOST #######
     } else if(el.id === "tradingPost" && objGlobals.mCountGold >= objGlobals.mTradingPostCost && objGlobals.mTradingPostCount < objGlobals.mTradingPostMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mTradingPostCost;
 
@@ -289,13 +285,11 @@ function purchase(el) {
         document.getElementById("tradingPosts").innerHTML = objGlobals.mTradingPostCount;
 
         objGlobals.mGoldRate += 0.5 * objGlobals.mLandMultiplier;
-        objGlobals.mTradingPostCost *= (1.1 + (0.1 * objGlobals.mLandCount));;
+        objGlobals.mTradingPostCost *= 1.1;
         objGlobals.mTradingPostCost = objGlobals.mTradingPostCost.toFixed();
         var cost = checkThousands(objGlobals.mTradingPostCost);
         document.getElementById("tradingPostCost").innerHTML = cost;
-        document.getElementById("tradingPost").title = "+" + (0.5 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
 
-    //###### FACTORY #######
     } else if(el.id === "factory" && objGlobals.mCountGold >= objGlobals.mFactoryCost && objGlobals.mFactoryCount < objGlobals.mFactoryMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mFactoryCost;
 
@@ -326,12 +320,11 @@ function purchase(el) {
         document.getElementById("pollutionRate").innerHTML = pollutionRate.toFixed(0);
 
         // adjust factory cost for each additional land
-        objGlobals.mFactoryCost *= (1.1 + (0.1 * objGlobals.mLandCount));;
+        objGlobals.mFactoryCost *= 1.1;
         objGlobals.mFactoryCost =  objGlobals.mFactoryCost.toFixed();
         var cost = checkThousands(objGlobals.mFactoryCost);
         document.getElementById("factoryCost").innerHTML = cost;
 
-    //###### RECYCLING #######
     } else if(el.id === "recyclingCentre" && objGlobals.mCountGold >= objGlobals.mRecyclingCost && objGlobals.mRecyclingCount < objGlobals.mRecyclingMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mRecyclingCost;
 
@@ -344,7 +337,6 @@ function purchase(el) {
         document.getElementById("recyclingCentres").innerHTML = objGlobals.mRecyclingCount;
 
         //reduce pollution rate
-        /* clearInterval(objGlobals.mArrPollutionIntervals.pop()); */
         objGlobals.mPollutionRate -= POLLUTION_RATE/2;    // POLLUTION_RATE pollution per second
         clearInterval(objGlobals.mPollutionInterval);
         objGlobals.mPollutionInterval = setInterval(incrementPollution, 1000, objGlobals.mPollutionRate);
@@ -354,12 +346,12 @@ function purchase(el) {
         document.getElementById("pollutionRate").innerHTML = pollutionRate.toFixed(0);
 
         //increase cost of recycling centre for each additional land
-        objGlobals.mRecyclingCost *= (1.1 + (0.1 * objGlobals.mLandCount));;
+        objGlobals.mRecyclingCost *= 1.1;
         objGlobals.mRecyclingCost = objGlobals.mRecyclingCost.toFixed();
         var cost = checkThousands(objGlobals.mRecyclingCost);
         document.getElementById("recyclingCost").innerHTML = cost;
     
-    //###### BANK #######
+
     } else if(el.id ==="bank" && objGlobals.mCountGold >= objGlobals.mBankCost && objGlobals.mBankCount < objGlobals.mBankMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mBankCost;
 
@@ -372,13 +364,11 @@ function purchase(el) {
         document.getElementById("banks").innerHTML = objGlobals.mBankCount;
 
         objGlobals.mGoldRate += 3 * objGlobals.mLandMultiplier;
-        objGlobals.mBankCost *= (1.1 + (0.1 * objGlobals.mLandCount));;
+        objGlobals.mBankCost *= 1.1;
         objGlobals.mBankCost = objGlobals.mBankCost.toFixed();
         var cost = checkThousands(objGlobals.mBankCost);
         document.getElementById("bankCost").innerHTML = cost;
-        document.getElementById("bank").title = "+" + (3 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
 
-    //###### STOCKMARKET #######
     } else if(el.id === "stockMarket" && objGlobals.mCountGold >= objGlobals.mStockmarketCost && objGlobals.mStockmarketCount < objGlobals.mStockmarketMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mStockmarketCost;
 
@@ -391,13 +381,11 @@ function purchase(el) {
         document.getElementById("stockmarkets").innerHTML = objGlobals.mStockmarketCount;
 
         objGlobals.mGoldRate += 60 * objGlobals.mLandMultiplier;
-        objGlobals.mStockmarketCost *= (1.1 + (0.1 * objGlobals.mLandCount));;
+        objGlobals.mStockmarketCost *= 1.1;
         objGlobals.mStockmarketCost = objGlobals.mStockmarketCost.toFixed();
         var cost = checkThousands(objGlobals.mStockmarketCost);
         document.getElementById("stockmarketCost").innerHTML = cost;
-        document.getElementById("stockMarket").title = "+" + (60 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec";
 
-    //###### COURTHOUSE #######
     } else if(el.id === "courthouse" && objGlobals.mCountGold >= objGlobals.mCourthouseCost && objGlobals.mCourthouseCount < objGlobals.mCourthouseMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mCourthouseCost;
 
@@ -410,15 +398,14 @@ function purchase(el) {
         document.getElementById("courthouses").innerHTML = objGlobals.mCourthouseCount;
 
         //reduce corruption
-        objGlobals.mCorruptionOffset -= 5;
+        objGlobals.mCorruptionOffset -= (5 * objGlobals.mLandMultiplier);
 
         //increment price per additional land
-        objGlobals.mCourthouseCost *= (1.1 + (0.1 * objGlobals.mLandCount));
+        objGlobals.mCourthouseCost *= 1.1;
         objGlobals.mCourthouseCost = objGlobals.mCourthouseCost.toFixed();
         var cost = checkThousands(objGlobals.mCourthouseCost);
         document.getElementById("courthouseCost").innerHTML = cost;
 
-    //###### LAND #######
     } else if(el.id ==="land" && objGlobals.mCountGold >= objGlobals.mLandCost && objGlobals.mLandCount < objGlobals.mLandMax) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mLandCost;
 
@@ -449,6 +436,14 @@ function purchase(el) {
         //increase building output multiplier
         objGlobals.mLandMultiplier += 1;
 
+        //increase building and burn amount labels
+        document.getElementById("market").title = "+" + (0.1 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
+        document.getElementById("tradingPost").title = "+" + (0.5 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
+        document.getElementById("bank").title = "+" + (3 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
+        document.getElementById("stockMarket").title = "+" + (60 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec";
+        document.getElementById("courthouse").title = "-" + (5 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec corruption";
+        document.getElementById("burnCorruption").title = "-" + (5 * objGlobals.mLandMultiplier).toFixed(0) + " gold/sec corruption / 0.1 STEEM";
+
         //halve corruption and decay
         objGlobals.mCorruptionLandOffset += (objGlobals.mCorruption/2) * -1;
         objGlobals.mDecayLandOffset += (objGlobals.mDecayRate/2) * -1;
@@ -458,7 +453,7 @@ function purchase(el) {
         var cost = checkThousands(objGlobals.mLandCost);
         document.getElementById("landCost").innerHTML = cost;
         
-    //###### AI #######
+
     } else if(el.id ==="ai" && objGlobals.mCountGold >= 1000000 && objGlobals.mAICount < 1) {
         objGlobals.mCountGold = objGlobals.mCountGold-1000000;
 
@@ -575,15 +570,25 @@ function upgrade(el) {
 
 function incrementMachines(rate) {
     objGlobals.mMachines += rate;
-    document.getElementById("countMachines").innerHTML = objGlobals.mMachines.toFixed(1);
 
+    if(objGlobals.mMachines < 99.8) {
+        document.getElementById("countMachines").innerHTML = objGlobals.mMachines.toFixed(1);
+    } else {
+        document.getElementById("countMachines").innerHTML = objGlobals.mMachines.toFixed(0);
+    }
+    
     //increase productivity
     objGlobals.mGoldRate += 10 * rate;  //rate = (fractions of) machines/sec
 }
 
 function incrementPollution(rate) {
     objGlobals.mPollution += rate;
-    document.getElementById("countPollution").innerHTML = objGlobals.mPollution.toFixed(1);
+    
+    if(objGlobals.mMachines < 99.8) {
+        document.getElementById("countPollution").innerHTML = objGlobals.mPollution.toFixed(1);
+    } else {
+        document.getElementById("countPollution").innerHTML = objGlobals.mPollution.toFixed(0);
+    }
 
     //decrease productivity
     objGlobals.mGoldRate -= 5 * rate;  //rate = (fractions of) pollution/sec
@@ -595,7 +600,7 @@ function corruption_decay_interest() {
 
     //interest
     let interest = (objGlobals.mCountGold * INTEREST_RATE * (CDI_INTERVAL/1000));   //INTEREST_RATE is per second, therefore adjust for CDI_INTERVAL
-    interest > 100 ? interest = 100 : true; //not working for some reason **********************
+    interest > (100 * (CDI_INTERVAL/1000)) ? interest = (100 * (CDI_INTERVAL/1000)) : true;
 
     if((interest * (1000/CDI_INTERVAL)) < 0.05 ) {
         document.getElementById("interest").innerHTML = (interest * (1000/CDI_INTERVAL)).toFixed(0);  //display interest as per second
@@ -605,7 +610,6 @@ function corruption_decay_interest() {
 
     //corruption
     let corruption = objGlobals.mCountWorth/2000 + objGlobals.mCorruptionOffset;
-    //corruption = corruption * objGlobals.mCorruptionLandOffset; //halves corruption with every extra Land; Problem here I think. Halves future corruption accumulation rate
     corruption += objGlobals.mCorruptionLandOffset;
     corruption < 0 ? corruptionRate = 0 : true;
     objGlobals.mCorruption = corruption;
@@ -613,7 +617,7 @@ function corruption_decay_interest() {
     if(corruption < 0.9) {
         document.getElementById("corruption").innerHTML =  "0";
     } else {
-        document.getElementById("corruption").innerHTML = "-" + (rate * (corruption/100)).toFixed(0);  //display per second rate
+        document.getElementById("corruption").innerHTML = "-" + corruption.toFixed(0);  //display per second rate
     } 
 
     //decay (wear and tear)
@@ -683,13 +687,13 @@ function gameClock() {
 function burnCorruption() {
     objGlobals.mSteemBurnt += 0.1;
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
-    objGlobals.mCorruptionOffset -= (5 * (objGlobals.mLandCount +1));
+    objGlobals.mCorruptionOffset -= (5 * objGlobals.mLandMultiplier);
 }
 
 function burnDecay() {
     objGlobals.mSteemBurnt += 0.1;
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
-    objGlobals.mDecayOffset -= 50;
+    objGlobals.mDecayOffset -= 20;
 }
 
 function pause(el) {

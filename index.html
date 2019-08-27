@@ -22,8 +22,8 @@
             <input type="button" class="buttons" id="pause" value="Pause" onclick="pause(this)" />
             <input type="button" class="buttons" id="save" value="Save" onclick="save(this)" />
             <input type="button" class="buttons" value="Load Game" onclick="load()" />
-            <input type="button" id="burnCorruption" value="Burn Corruption" title="-5 corruption / 0.1 STEEM" onclick="burnCorruption()" disabled />
-            <input type="button" id="burnDecay" value="Burn Wear & Tear" title="-50 wear & tear / 0.1 STEEM" onclick="burnDecay()" disabled />
+            <input type="button" id="burnCorruption" value="Burn Corruption" title="-5 gold/sec corruption / 0.1 STEEM" onclick="burnCorruption()" disabled />
+            <input type="button" id="burnDecay" value="Burn Wear & Tear" title="-20 wear & tear / 0.1 STEEM" onclick="burnDecay()" disabled />
             <div id="stats">
                 <div class="heading2">Stats</div>
                 <div>Net Worth: <span id="countWorth">0</span> Gold</div>
@@ -59,12 +59,12 @@
             <span id="stockMarket" title="+60 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/stockmarket.png"></img> Stockmarket (<span class="cost" id="stockmarketCost">5,000</span> gold) (<span id="stockmarkets">0</span>/<span id="stockmarketMax">2</span>)</div></span>
             <span id="factory" title="+1 machine / min; +2 pollution / min" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/factory.png"></img> Factory (<span class="cost" id="factoryCost">250</span> gold) (<span id="factories">0</span>/<span id="factoryMax">5</span>)</div></span>
             <span id="recyclingCentre" title="-1 pollution / min" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/recycle.png"></img> Recycling Centre (<span class="cost" id="recyclingCost">250</span> gold) (<span id="recyclingCentres">0</span>/<span id="recyclingMax">5</span>)</div></span>
-            <span id="courthouse" title="-5 corruption" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/courthouse.png"></img> Courthouse (<span class="cost" id="courthouseCost">350</span> gold) (<span id="courthouses">0</span>/<span id="courthouseMax">5</span>)</div></span>
+            <span id="courthouse" title="-5 gold / sec corruption" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/courthouse.png"></img> Courthouse (<span class="cost" id="courthouseCost">350</span> gold) (<span id="courthouses">0</span>/<span id="courthouseMax">5</span>)</div></span>
             <span id="land" title="Expand, more buildings! Halve corruption and wear & tear" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/land.png"></img> Land (<span class="cost" id="landCost">100,000</span> gold) (<span id="lands">0</span>/<span id="landMax">5</span>)</div></span>
             <span id="ai" title="Sentient machines. Beware SKYNET! +1000 gold / sec" onclick="purchase(this)"><div class="items"><img class="icon" src="./images/ai.png"></img> AI (<span class="cost" id="aiCost">1,000,000</span> gold) (<span id="ais">0</span>/<span id="aisMax">1</span>)</div></span>
         </span>  
     </div>
-    <div id="popup"><span id="message">testing some text</span></div>
+    <div id="popup"></div>
 </body>
 
 </html>
