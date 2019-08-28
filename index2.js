@@ -2,7 +2,10 @@ const MACHINE_RATE = 1/60;
 const POLLUTION_RATE = 1/30;
 const CDI_INTERVAL = 51;        // corruption, decay, interest ms interval
 const INTEREST_RATE = 0.0025;    // per second
-const BONUS_TIME = 1200; // ms that bonus clicky will show for
+const BONUS_TIME = 1500; // ms that bonus clicky will show for
+
+mCorruptionBurn = 10;   //amount of corruption reduced via burn button
+mDecayBurn = 20;    //amount of decay reduced via burn button
 
 objGlobals = {
     mArrIntervalIDs: [],
@@ -15,6 +18,8 @@ objGlobals = {
     mBlnDraglineAvailable: true,
     mBlnMineAvailable: true,
     mBlnAutomatedAvailable: true,
+    mBlnClicked: false, // if bonus already clicked on
+    mBlnTripped: false,
 
     mIncrement: 1,  // click multiplier
     mCount: 0,
@@ -50,8 +55,9 @@ objGlobals = {
     mMachines: 0,
     mMachineRate: 0,
     mMachineInterval: 0,
-    mPollution: 0,
+    mPollutionCount: 0,
     mPollutionRate: 0,
+    mPollutionGold: 5,  // gold/sec rate of each pollution 
     mPollutionInterval: 0,
     mIncrementPollution: 0,
     mRecyclingCount: 0,
@@ -61,10 +67,16 @@ objGlobals = {
     mCourthouseMax: 5,
     mCourthouseCost: 350,
     mLandCount: 0,
-    mLandMax: 5,
+    mLandMax: 3,
     mLandCost: 100000,
     mLandMultiplier: 1,
+    mPick_ShovelCost: 150,
+    mWorkersCost: 500,
+    mCaffeineCost: 1000,
+    mTNTCost: 2000,
+    mDraglineCost: 10000,
     mAICount: 0,
+    mAiCost: 500000,
     mCorruption: 0,
     mCorruptionOffset: 0,
     mCorruptionLandOffset: 0,
@@ -105,9 +117,6 @@ function increment() {
         }
 
         incrementWorth(objGlobals.mIncrement);
-
-        document.getElementById("burnCorruption").disabled = false;
-        document.getElementById("burnDecay").disabled = false;    
     }
 }
 
@@ -121,8 +130,15 @@ function startIntervals() {
 
 function bonuses() {
     if(!objGlobals.mBlnPaused) {
-        var rand = Math.random() * (30 - 10) + 10;   // between 10 and 30 seconds
-        rand = rand*1000;
+        var rand = 0;
+
+        if(objGlobals.mCountWorth < 500000) {
+            rand = Math.random() * (30 - 10) + 10;   // between 10 and 30 seconds
+            rand = rand*1000;
+        } else {
+            rand = Math.random() * (25 - 5) + 5;   // between 5 and 25 seconds
+            rand = rand*1000;
+        }
 
         objGlobals.mBonusTimeout = setTimeout(bonus, rand);
     } else {
@@ -144,44 +160,79 @@ function bonus() {
         if(rand === 1) {
             showBonus("luckystrike", "100");
         } else if(rand === 2) {
-            showBonus("prospector", "2")
+            showBonus("prospector", "1")
         }
 
-    } else if(objGlobals.mCountWorth >= 10000 && objGlobals.mCountWorth < 30000) {
+    } else if(objGlobals.mCountWorth >= 10000 && objGlobals.mCountWorth < 100000) {
         let rand = Math.floor((Math.random() * 3) + 1);
 
         if(rand === 1) {
             showBonus("luckystrike", "200");
         } else if(rand === 2) {
-            showBonus("prospector", "3");
+            showBonus("prospector", "2");
         } else if(rand === 3) {
-            showBonus("sheriff", "2");
+            showBonus("sheriff", "1");
         }
 
-    } else if(objGlobals.mCountWorth >= 30000 && objGlobals.mCountWorth < 100000) {
+    } else if(objGlobals.mCountWorth >= 100000 && objGlobals.mCountWorth < 200000) {
         let rand = Math.floor((Math.random() * 4) + 1);
         
         if(rand === 1) {
             showBonus("luckystrike", "500");
         } else if(rand === 2) {
-            showBonus("prospector", "5");
+            showBonus("prospector", "3");
         } else if(rand === 3) {
-            showBonus("wd40", "3");
+            showBonus("wd40", "5");
         } else if(rand === 4) {
-            showBonus("sheriff", "3");
+            showBonus("sheriff", "2");
         }
-    } else if(objGlobals.mCountWorth >= 100000) {
+
+    } else if(objGlobals.mCountWorth >= 200000 && objGlobals.mCountWorth < 300000) {
         //large bonuses
-        let rand = Math.floor((Math.random() * 4) + 1);
+        let rand = Math.floor((Math.random() * 5) + 1);
         
         if(rand === 1) {
             showBonus("luckystrike", "1000");
+        } else if(rand === 2) {
+            showBonus("prospector", "5");
+        } else if(rand === 3) {
+            showBonus("oil", "8");
+        } else if(rand === 4) {
+            showBonus("sheriff", "3");
+        } else if(rand === 5) {
+            showBonus("trees", "1")
+        }
+
+    } else if(objGlobals.mCountWorth >= 300000 && objGlobals.mCountWorth < 500000) {
+        //large bonuses
+        let rand = Math.floor((Math.random() * 5) + 1);
+        
+        if(rand === 1) {
+            showBonus("luckystrike", "2000");
         } else if(rand === 2) {
             showBonus("prospector", "8");
         } else if(rand === 3) {
             showBonus("oil", "10");
         } else if(rand === 4) {
             showBonus("sheriff", "5");
+        } else if(rand === 5) {
+            showBonus("trees", "1")
+        }
+
+    } else if(objGlobals.mCountWorth >= 500000) {
+        //large bonuses
+        let rand = Math.floor((Math.random() * 5) + 1);
+        
+        if(rand === 1) {
+            showBonus("luckystrike", "5000");
+        } else if(rand === 2) {
+            showBonus("prospector", "12");
+        } else if(rand === 3) {
+            showBonus("oil", "15");
+        } else if(rand === 4) {
+            showBonus("sheriff", "10");
+        } else if(rand === 5) {
+            showBonus("trees", "2")
         }
     }
 
@@ -192,9 +243,10 @@ function showBonus(bonusType, bonus) {
     var img = document.createElement("img");
     img.src = "./images/" + bonusType + ".png";
     img.classList.add("bonus");
+    img.classList.add("unselectable");
     img.style.position = "absolute";
-    img.style.left = "800px";
-    img.style.top = "200px";
+    img.style.left = "900px";
+    img.style.top = "300px";
     img.style.zIndex = "10";
     img.dataset.type = bonusType;
     img.dataset.bonus = bonus;
@@ -208,48 +260,58 @@ function showBonus(bonusType, bonus) {
 }
 
 function clicked(e) {
-    var el = e.target;
-    var popup = document.getElementById("popup");
+    if(!objGlobals.mBlnClicked) {
+        var el = e.target;
+        var popup = document.getElementById("popup");
 
-    switch (el.dataset.type) {
-        case "luckystrike":
-            objGlobals.mCountGold += parseInt(el.dataset.bonus);
-            popup.innerHTML = "Eureka! You found " + el.dataset.bonus + " gold";
+        switch (el.dataset.type) {
+            case "luckystrike":
+                objGlobals.mCountGold += parseInt(el.dataset.bonus);
+                popup.innerHTML = "Eureka! You found " + el.dataset.bonus + " gold";
 
-            if(objGlobals.mCountGold < 10000) {
-                document.getElementById("countGold").innerHTML = Math.floor(objGlobals.mCountGold);
-            } else {
-                document.getElementById("countGold").innerHTML = (objGlobals.mCountGold/1000).toFixed(1) + "k";
-            }
-            break;
-        case "wd40":
-            objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
-            popup.innerHTML = "Lubrication! -" + el.dataset.bonus + " wear & tear";
-            break;  
-        case "prospector":
-            objGlobals.mGoldRate += parseInt(el.dataset.bonus);
-            document.getElementById("goldRate").innerHTML = objGlobals.mGoldRate;
-            popup.innerHTML = "Help has arrived! +" + el.dataset.bonus + " gold/sec";
-            break;
-        case "sheriff":
-            objGlobals.mCorruptionOffset -= parseInt(el.dataset.bonus);
-            popup.innerHTML = "There's a new sheriff in town! -" + el.dataset.bonus + " corruption";
-            break;
-        case "oil":
-            objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
-            popup.innerHTML = "Lubrication! -" + el.dataset.bonus + " wear & tear";
-            break;
+                if(objGlobals.mCountGold < 10000) {
+                    document.getElementById("countGold").innerHTML = Math.floor(objGlobals.mCountGold);
+                } else {
+                    document.getElementById("countGold").innerHTML = (objGlobals.mCountGold/1000).toFixed(1) + "k";
+                }
+                break;
+            case "wd40":
+                objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
+                popup.innerHTML = "Lubrication! -" + el.dataset.bonus + " wear & tear";
+                break;  
+            case "prospector":
+                objGlobals.mGoldRate += parseInt(el.dataset.bonus);
+                document.getElementById("goldRate").innerHTML = objGlobals.mGoldRate.toFixed(1);
+                popup.innerHTML = "Help has arrived! +" + el.dataset.bonus + " gold/sec";
+                break;
+            case "sheriff":
+                objGlobals.mCorruptionOffset -= parseInt(el.dataset.bonus);
+                popup.innerHTML = "There's a new sheriff in town! -" + el.dataset.bonus + " corruption";
+                break;
+            case "trees":
+                objGlobals.mPollutionCount -= 1;
+                //objGlobals.mGoldRate += objGlobals.mPollutionGold;  //***************** NEEDS ATTENTION: Will increase gold rate for pollution of less than one ***********
+                popup.innerHTML = "You planted 1000 trees! -" + el.dataset.bonus + " pollution";
+                
+                break;
+            case "oil":
+                objGlobals.mDecayOffset -= parseInt(el.dataset.bonus);
+                popup.innerHTML = "Lubrication! -" + el.dataset.bonus + " wear & tear";
+                break;
+        }
+
+        popup.style.opacity = "100";
+        setTimeout(function(){ popup.style.opacity = "0"; }, 2500); 
     }
 
-    popup.style.opacity = "100";
-    setTimeout(function(){ popup.style.opacity = "0"; }, 2000);
-    
+    objGlobals.mBlnClicked = true;    
 }
 
 function clearBonus(el) {
     el.style.opacity = "0";
 
-    setTimeout(function(){ document.getElementById("surface").removeChild(el); }, 300);
+    setTimeout(function(){ document.getElementById("surface").removeChild(el); }, 200);
+    objGlobals.mBlnClicked = false;
 }
 
 function purchase(el) {
@@ -265,7 +327,6 @@ function purchase(el) {
         document.getElementById("markets").innerHTML = objGlobals.mMarketCount;
 
         objGlobals.mGoldRate += 0.1 * objGlobals.mLandMultiplier;
-        /* objGlobals.mMarketCost *= (1.1 + (0.1 * objGlobals.mLandCount)); */
         objGlobals.mMarketCost *= 1.1;
         objGlobals.mMarketCost = objGlobals.mMarketCost.toFixed();
         var cost = checkThousands(objGlobals.mMarketCost);
@@ -323,7 +384,7 @@ function purchase(el) {
         var cost = checkThousands(objGlobals.mFactoryCost);
         document.getElementById("factoryCost").innerHTML = cost;
 
-    } else if(el.id === "recyclingCentre" && objGlobals.mCountGold >= objGlobals.mRecyclingCost && objGlobals.mRecyclingCount < objGlobals.mRecyclingMax) {
+    } else if(el.id === "recyclingCentre" && objGlobals.mCountGold >= objGlobals.mRecyclingCost && objGlobals.mRecyclingCount < objGlobals.mRecyclingMax && objGlobals.mFactoryCount > 0) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mRecyclingCost;
 
         if(objGlobals.mCountGold < objGlobals.mRecyclingCost) {
@@ -404,7 +465,7 @@ function purchase(el) {
         var cost = checkThousands(objGlobals.mCourthouseCost);
         document.getElementById("courthouseCost").innerHTML = cost;
 
-    } else if(el.id ==="land" && objGlobals.mCountGold >= objGlobals.mLandCost && objGlobals.mLandCount < objGlobals.mLandMax) {
+    } else if(el.id ==="land" && objGlobals.mCountGold >= objGlobals.mLandCost && objGlobals.mLandCount < objGlobals.mLandMax && objGlobals.mBlnTripped) {
         objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mLandCost;
 
         if(objGlobals.mCountGold < objGlobals.mLandCost) {
@@ -426,13 +487,13 @@ function purchase(el) {
         document.getElementById("recyclingMax").innerHTML = objGlobals.mRecyclingMax;
         objGlobals.mBankMax += 5;
         document.getElementById("bankMax").innerHTML = objGlobals.mBankMax;
-        objGlobals.mStockmarketMax += 2;
+        objGlobals.mStockmarketMax += 1;
         document.getElementById("stockmarketMax").innerHTML = objGlobals.mStockmarketMax;
         objGlobals.mCourthouseMax += 5;
         document.getElementById("courthouseMax").innerHTML = objGlobals.mCourthouseMax;
 
         //increase building output multiplier
-        objGlobals.mLandMultiplier += 1;
+        objGlobals.mLandMultiplier *= 1.3;
 
         //increase building and burn amount labels
         document.getElementById("market").title = "+" + (0.1 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
@@ -440,11 +501,14 @@ function purchase(el) {
         document.getElementById("bank").title = "+" + (3 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
         document.getElementById("stockMarket").title = "+" + (60 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec";
         document.getElementById("courthouse").title = "-" + (3 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec corruption";
-        document.getElementById("burnCorruption").title = "-" + (3 * objGlobals.mLandMultiplier).toFixed(0) + " gold/sec corruption / 0.1 STEEM";
+        /* document.getElementById("burnCorruption").title = "-" + (3 * objGlobals.mLandMultiplier).toFixed(0) + " gold/sec corruption / 0.1 STEEM"; */
 
-        //reduce corruption and decay by a third
-        objGlobals.mCorruptionLandOffset += (objGlobals.mCorruption/3) * -1;
-        objGlobals.mDecayLandOffset += (objGlobals.mDecayRate/3) * -1;
+        /* //reduce corruption and decay by a quarter
+        objGlobals.mCorruptionLandOffset += (objGlobals.mCorruption/4) * -1;
+        objGlobals.mDecayLandOffset += (objGlobals.mDecayRate/4) * -1; */
+        //reduce corruption and decay
+        objGlobals.mCorruptionLandOffset -= 20;
+        objGlobals.mDecayLandOffset -= 70;
 
         objGlobals.mLandCost *= (1.1 + (0.1 * objGlobals.mLandCount));
         objGlobals.mLandCost = objGlobals.mLandCost.toFixed();
@@ -452,7 +516,7 @@ function purchase(el) {
         document.getElementById("landCost").innerHTML = cost;
         
 
-    } else if(el.id ==="ai" && objGlobals.mCountGold >= 1000000 && objGlobals.mAICount < 1) {
+    } else if(el.id ==="ai" && objGlobals.mCountGold >= 500000 && objGlobals.mAICount < 1) {
         objGlobals.mCountGold = objGlobals.mCountGold-1000000;
 
         if(objGlobals.mCountGold < 1000000) {
@@ -541,17 +605,17 @@ function upgrade(el) {
         objGlobals.mDraglinesCount += 1;
         document.getElementById("draglines").innerHTML = objGlobals.mDraglinesCount;
 
-        objGlobals.mIncrement = objGlobals.mIncrement * 3;
+        objGlobals.mIncrement = objGlobals.mIncrement * 2;
         objGlobals.mBlnDraglineAvailable = false;
         document.getElementById("perClick").innerHTML = objGlobals.mIncrement;
-    } else if(el.id === "mine" && objGlobals.mLandCount === 1 &&  objGlobals.mBlnMineAvailable) {
+    } else if(el.id === "mine" && objGlobals.mLandCount > 0 &&  objGlobals.mBlnMineAvailable) {
 
         document.getElementById("dragline").style.color = "#838383";
         document.getElementById("dragline").style.cursor = "default";
 
         document.getElementById("mines").innerHTML = "1";
 
-        objGlobals.mIncrement = objGlobals.mIncrement * 4;
+        objGlobals.mIncrement = objGlobals.mIncrement * 3;
         objGlobals.mBlnMineAvailable = false;
         document.getElementById("perClick").innerHTML = objGlobals.mIncrement;
     } else if(el.id === "automated" && objGlobals.mAICount === 1 &&  objGlobals.mBlnAutomatedAvailable) {
@@ -560,7 +624,7 @@ function upgrade(el) {
 
         document.getElementById("automateds").innerHTML = "1";
 
-        objGlobals.mIncrement = objGlobals.mIncrement * 10;
+        objGlobals.mIncrement = objGlobals.mIncrement * 5;
         objGlobals.mBlnAutomatedAvailable = false;
         document.getElementById("perClick").innerHTML = objGlobals.mIncrement;
     }
@@ -576,20 +640,22 @@ function incrementMachines(rate) {
     }
     
     //increase productivity
-    objGlobals.mGoldRate += 10 * rate;  //rate = (fractions of) machines/sec
+    objGlobals.mGoldRate += 11 * rate;  //rate = (fractions of) machines/sec
 }
 
-function incrementPollution(rate) {
-    objGlobals.mPollution += rate;
+function incrementPollution(rate) { // called once per second
+    objGlobals.mPollutionCount += rate; //rate = per second
+    var pollution = objGlobals.mPollutionCount;
+    pollution < 0 ? pollution = 0 : true;
 
-    if(objGlobals.mPollution < 99.8) {
-        document.getElementById("countPollution").innerHTML = objGlobals.mPollution.toFixed(1);
+    if(objGlobals.mPollutionCount < 99.8) {
+        document.getElementById("countPollution").innerHTML = pollution.toFixed(1);
     } else {
-        document.getElementById("countPollution").innerHTML = objGlobals.mPollution.toFixed(0);
+        document.getElementById("countPollution").innerHTML = pollution.toFixed(0);
     }
 
     //decrease productivity
-    objGlobals.mGoldRate -= 5 * rate;  //rate = (fractions of) pollution/sec
+    objGlobals.mGoldRate -= objGlobals.mPollutionGold * rate;  //rate = (fractions of) pollution/sec
     objGlobals.mGoldRate < 0 ? objGlobals.mGoldRate = 0.000001 : true;
 }
 
@@ -618,11 +684,11 @@ function corruption_decay_interest() {
         document.getElementById("corruption").innerHTML = "-" + corruption.toFixed(0);  //display per second rate
     } 
 
-    //decay (wear and tear)
+    //decay (wear and tear).
     var now = Date.now();
     var secElapsed = (now - objGlobals.msStartTime - objGlobals.mTimeOffset)/1000;
 
-    decayRate = (Math.pow(secElapsed, 1.08)-800)/2;
+    decayRate = (Math.pow(secElapsed, 1.15)-1850)/2;
     decayRate += objGlobals.mDecayOffset;
     decayRate += objGlobals.mDecayLandOffset;
     decayRate < 0 ? decayRate = 0 : true;
@@ -659,6 +725,10 @@ function incrementGold(goldRate) {
 function incrementWorth(amount) {
     objGlobals.mCountWorth +=amount;
     document.getElementById("countWorth").innerHTML = objGlobals.mCountWorth.toFixed(0);
+
+    if (objGlobals.mCountWorth >= 90000 && objGlobals.mCountWorth <= 90032) {
+        objGlobals.mBlnTripped = true;
+    }
 }
 
 function growthRate() {
@@ -674,24 +744,36 @@ function growthRate() {
     }
 }
 
-function gameClock() { 
+function gameClock() { //includes button enables
     //tick game clock
     var now = Date.now();
     secElapsed = (now - objGlobals.msStartTime - objGlobals.mTimeOffset)/1000;
     secElapsed = secElapsed.toFixed(0);
     document.getElementById("time").innerHTML = secElapsed;
+
+    if(objGlobals.mCorruption >= mCorruptionBurn) {
+        document.getElementById("burnCorruption").disabled = false;
+    } else {
+        document.getElementById("burnCorruption").disabled = true;
+    }
+
+    if(objGlobals.mDecayRate >= mDecayBurn) {
+        document.getElementById("burnDecay").disabled = false;      
+    } else {
+        document.getElementById("burnDecay").disabled = true;   
+    } 
 }
 
 function burnCorruption() {
     objGlobals.mSteemBurnt += 0.1;
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
-    objGlobals.mCorruptionOffset -= (3 * objGlobals.mLandMultiplier);
+    objGlobals.mCorruptionOffset -= (mCorruptionBurn * objGlobals.mLandMultiplier);
 }
 
 function burnDecay() {
     objGlobals.mSteemBurnt += 0.1;
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
-    objGlobals.mDecayOffset -= 20;
+    objGlobals.mDecayOffset -= mDecayBurn;
 }
 
 function pause(el) {
@@ -755,7 +837,23 @@ function load() {
 }
 
 function enableBuildings() {
-    if(objGlobals.mCountGold >= objGlobals.mLandCost) {
+    var nodes = document.getElementsByClassName("items");
+
+    for (let node of nodes) {
+        for (let key of Object.keys(objGlobals)) {
+            if (node.dataset.variable == key) {   //eg. if node.dataset.variable == "mMarketCost"
+                if(objGlobals.mCountGold >= objGlobals[key]) {
+                    node.classList.remove("disabled");
+                } else {
+                    node.classList.add("disabled");
+                }
+                break;
+            }
+        }
+    }
+}
+
+/*     if(objGlobals.mCountGold >= objGlobals.mLandCost) {
         document.getElementById("land").style.color = "black";
         document.getElementById("land").style.cursor = "pointer";
         document.getElementById("stockMarket").style.color = "black";
@@ -907,10 +1005,10 @@ function enableBuildings() {
         document.getElementById("market").style.cursor = "#838383";
         enableUpgrades();
         return;
-    }
-}
+    } 
+}*/
 
-function enableUpgrades() {
+/* function enableUpgrades() {
     if(objGlobals.mAICount === 1) {
         document.getElementById("automated").style.color = "black";
         document.getElementById("automated").style.cursor = "pointer";
@@ -982,7 +1080,7 @@ function enableUpgrades() {
         document.getElementById("pick_shovel").style.cursor = "pointer";
         return;
     }
-}
+} */
 
 function checkThousands(int) {
     return int.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

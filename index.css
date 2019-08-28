@@ -6,7 +6,7 @@
     display: flex;
     width: 90vw;
     min-width: 1600px;
-    height: 850px;
+    height: 930px;
     margin: auto;
     border: 1px solid #4F4F4F;
     background-color: #EEE5C9;
@@ -27,10 +27,10 @@
 
 #totals {
     width: 100%;
-    height: 100px;
-    padding-top: 30px;
+    height: 110px;
+    padding-top: 33px;
     border-bottom: 1px solid #4F4F4F;
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 900;
 }
 
@@ -41,40 +41,40 @@
 
 #countGold {
     display: inline-block;
-    width: 100px;
+    width: 115px;
     text-align: right;
 
 }
 
 #countMachines, #countPollution {
     display: inline-block;
-    width: 60px;
+    width: 65px;
     text-align: right;
 }
 
 #countCorruption {
     display: inline-block;
-    width: 60px;
+    width: 65px;
     text-align: right;
 }
 
 .divRate, .divRate1 {
     display: inline-block;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 300;
     text-align: left;
 }
 .divRate {
-    width: 70px;
+    width: 75px;
 }
 
 .divRate1 {
-    width: 90px;
+    width: 100px;
 }
 
 #surface {
     width: 100%;
-    height: 750px;
+    height: 825px;
     background-image: url("./images/mine4.jpg");
     background-size: cover;
     background-position: left bottom;
@@ -89,32 +89,40 @@
     color: #838383;
 }
 
+#stats>div {
+    font-size: 18px;
+}
+
 .heading {
     color: black;
-    margin-top: 35px;
-    font-size: 32px;
+    margin-top: 40px;
+    font-size: 36px;
     font-weight: 600;
     text-align: center;
 }
 
 .heading2 {
     color: black;
-    padding-bottom: 5px;
-    font-size: 32px;
+    padding-bottom: 6px;
+    margin-top: 20px;
+    font-size: 36px !important;
     font-weight: 600;
 }
 
 .items {
     display: flex;
     align-items: flex-end;
+    font-size: 17px;
+    color: black !important;
+    cursor: pointer !important;
 }
 
 #nugget {
     position: relative;
     display: block;
     margin: auto;
-    top: 470px;
-    left: 20px;
+    top: 535px;
+    left: 22px;
 }
 
 .count {
@@ -158,25 +166,30 @@
 
 .bonus {
     opacity: 100;
-    transition: opacity 200ms;
+    transition: opacity 50ms;
 }
 
 #popup {
     position: absolute;
-    left: 460px;
-    bottom: 115px;
-    width: 240px;
-    height: 110px;
+    left: 500px;
+    bottom: 100px;
+    width: 260px;
+    height: 120px;
     opacity: 0;
     transition: opacity 400ms;
     border: 1px solid #3C3C3C;
     border-radius: 5px;
     background-color: #242424;
-    font-size: 18px;
+    font-size: 20px;
     color: #E8E8E8;
     text-align: center;
-    padding: 5px;
-    padding-top: 30px;
+    padding: 7px;
+    padding-top: 35px;
+}
+
+.disabled {
+    color: #838383 !important;
+    cursor: default !important;
 }
 
 .unselectable {
