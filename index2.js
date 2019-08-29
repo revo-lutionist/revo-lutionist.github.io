@@ -29,19 +29,16 @@ objGlobals = {
     mIncrementGold: 0,
     mMarketCount: 0,
     mMarketMax: 10,
-    mMarketCost: 20,
     mTradingPostCount: 0,
     mTradingPostMax: 10,
-    mTradingPostCost: 60,
     mBankCount: 0,
     mBankMax: 5,
-    mBankCost: 300,
     mStockmarketCount: 0,
     mStockmarketMax: 2,
-    mStockmarketCost: 5000,
+    mWallStreetCount: 0,
+    mTradeCount: 0,
     mFactoryCount: 0,
     mFactoryMax: 5,
-    mFactoryCost: 250,
     mPick_ShovelCount: 0,
     mPick_ShovelMax: 1,
     mWorkerCount: 0,
@@ -52,6 +49,8 @@ objGlobals = {
     mTNTMax: 1,
     mDraglinesCount: 0,
     mDraglinesMax: 1,
+    mMinesCount: 0,
+    mAutomatedCount: 0,
     mMachines: 0,
     mMachineRate: 0,
     mMachineInterval: 0,
@@ -62,21 +61,12 @@ objGlobals = {
     mIncrementPollution: 0,
     mRecyclingCount: 0,
     mRecyclingMax: 5,
-    mRecyclingCost: 250,
     mCourthouseCount: 0,
     mCourthouseMax: 5,
-    mCourthouseCost: 350,
     mLandCount: 0,
     mLandMax: 3,
-    mLandCost: 100000,
     mLandMultiplier: 1,
-    mPick_ShovelCost: 150,
-    mWorkersCost: 500,
-    mCaffeineCost: 1000,
-    mTNTCost: 2000,
-    mDraglineCost: 10000,
     mAICount: 0,
-    mAiCost: 500000,
     mCorruption: 0,
     mCorruptionOffset: 0,
     mCorruptionLandOffset: 0,
@@ -92,6 +82,25 @@ objGlobals = {
     msRestartTime: 0,
     mTimeOffset: 0,      // handles game timer after game pauses
     //mSecElapsed: 0
+};
+
+objGlobalsCost = {
+    mMarket: 20,
+    mTradingPost: 60,
+    mBank: 300,
+    mStockmarket: 5000,
+    mWallStreet: 20000,
+    mTrade: 30000,
+    mFactory: 250,
+    mRecycling: 250,
+    mCourthouse: 350,
+    mLand: 100000,
+    mAi: 500000,
+    mPick_Shovel: 150,
+    mWorkers: 500,
+    mCaffeine: 1000,
+    mTNT: 2000,
+    mDragline: 10000,
 };
 
 window.addEventListener('load', function() {
@@ -210,11 +219,11 @@ function bonus() {
         if(rand === 1) {
             showBonus("luckystrike", "2000");
         } else if(rand === 2) {
-            showBonus("prospector", "8");
+            showBonus("prospector", "7");
         } else if(rand === 3) {
-            showBonus("oil", "10");
+            showBonus("oil", "9");
         } else if(rand === 4) {
-            showBonus("sheriff", "5");
+            showBonus("sheriff", "4");
         } else if(rand === 5) {
             showBonus("trees", "1")
         }
@@ -224,13 +233,13 @@ function bonus() {
         let rand = Math.floor((Math.random() * 5) + 1);
         
         if(rand === 1) {
-            showBonus("luckystrike", "5000");
+            showBonus("luckystrike", "3000");
         } else if(rand === 2) {
-            showBonus("prospector", "12");
+            showBonus("prospector", "8");
         } else if(rand === 3) {
-            showBonus("oil", "15");
+            showBonus("oil", "10");
         } else if(rand === 4) {
-            showBonus("sheriff", "10");
+            showBonus("sheriff", "7");
         } else if(rand === 5) {
             showBonus("trees", "2")
         }
@@ -315,10 +324,10 @@ function clearBonus(el) {
 }
 
 function purchase(el) {
-    if(el.id === "market" && objGlobals.mCountGold >= objGlobals.mMarketCost && objGlobals.mMarketCount < objGlobals.mMarketMax) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mMarketCost;
+    if(el.id === "market" && objGlobals.mCountGold >= objGlobalsCost.mMarket && objGlobals.mMarketCount < objGlobals.mMarketMax) {
+        objGlobals.mCountGold = objGlobals.mCountGold-objGlobalsCost.mMarket;
         
-        if(objGlobals.mCountGold < objGlobals.mMarketCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mMarket) {
             document.getElementById("market").style.color = "#838383";
             document.getElementById("market").style.cursor = "default";
         }
@@ -327,15 +336,15 @@ function purchase(el) {
         document.getElementById("markets").innerHTML = objGlobals.mMarketCount;
 
         objGlobals.mGoldRate += 0.1 * objGlobals.mLandMultiplier;
-        objGlobals.mMarketCost *= 1.1;
-        objGlobals.mMarketCost = objGlobals.mMarketCost.toFixed();
-        var cost = checkThousands(objGlobals.mMarketCost);
+        objGlobalsCost.mMarket *= 1.1;
+        objGlobalsCost.mMarket = objGlobalsCost.mMarket.toFixed();
+        var cost = checkThousands(objGlobalsCost.mMarket);
         document.getElementById("marketCost").innerHTML = cost;
 
-    } else if(el.id === "tradingPost" && objGlobals.mCountGold >= objGlobals.mTradingPostCost && objGlobals.mTradingPostCount < objGlobals.mTradingPostMax) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mTradingPostCost;
+    } else if(el.id === "tradingPost" && objGlobals.mCountGold >= objGlobalsCost.mTradingPost && objGlobals.mTradingPostCount < objGlobals.mTradingPostMax) {
+        objGlobals.mCountGold = objGlobals.mCountGold-objGlobalsCost.mTradingPost;
 
-        if(objGlobals.mCountGold < objGlobals.mTradingPostCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mTradingPost) {
             document.getElementById("tradingPost").style.color = "#838383";
             document.getElementById("tradingPost").style.cursor = "default";
         }
@@ -344,15 +353,15 @@ function purchase(el) {
         document.getElementById("tradingPosts").innerHTML = objGlobals.mTradingPostCount;
 
         objGlobals.mGoldRate += 0.5 * objGlobals.mLandMultiplier;
-        objGlobals.mTradingPostCost *= (1.1 + (0.05 * objGlobals.mLandCount));
-        objGlobals.mTradingPostCost = objGlobals.mTradingPostCost.toFixed();
-        var cost = checkThousands(objGlobals.mTradingPostCost);
+        objGlobalsCost.mTradingPost *= (1.1 + (0.05 * objGlobals.mLandCount));
+        objGlobalsCost.mTradingPost = objGlobalsCost.mTradingPost.toFixed();
+        var cost = checkThousands(objGlobalsCost.mTradingPost);
         document.getElementById("tradingPostCost").innerHTML = cost;
 
-    } else if(el.id === "factory" && objGlobals.mCountGold >= objGlobals.mFactoryCost && objGlobals.mFactoryCount < objGlobals.mFactoryMax) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mFactoryCost;
+    } else if(el.id === "factory" && objGlobals.mCountGold >= objGlobalsCost.mFactory && objGlobals.mFactoryCount < objGlobals.mFactoryMax) {
+        objGlobals.mCountGold = objGlobals.mCountGold-objGlobalsCost.mFactory;
 
-        if(objGlobals.mCountGold < objGlobals.mFactoryCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mFactory) {
             document.getElementById("factory").style.color = "#838383";
             document.getElementById("factory").style.cursor = "default";
         }
@@ -379,15 +388,15 @@ function purchase(el) {
         document.getElementById("pollutionRate").innerHTML = pollutionRate.toFixed(0);
 
         // adjust factory cost for each additional land
-        objGlobals.mFactoryCost *= (1.1 + (0.05 * objGlobals.mLandCount));
-        objGlobals.mFactoryCost =  objGlobals.mFactoryCost.toFixed();
-        var cost = checkThousands(objGlobals.mFactoryCost);
+        objGlobalsCost.mFactory *= (1.1 + (0.05 * objGlobals.mLandCount));
+        objGlobalsCost.mFactory =  objGlobalsCost.mFactory.toFixed();
+        var cost = checkThousands(objGlobalsCost.mFactory);
         document.getElementById("factoryCost").innerHTML = cost;
 
-    } else if(el.id === "recyclingCentre" && objGlobals.mCountGold >= objGlobals.mRecyclingCost && objGlobals.mRecyclingCount < objGlobals.mRecyclingMax && objGlobals.mFactoryCount > 0) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mRecyclingCost;
+    } else if(el.id === "recyclingCentre" && objGlobals.mCountGold >= objGlobalsCost.mRecycling && objGlobals.mRecyclingCount < objGlobals.mRecyclingMax && objGlobals.mFactoryCount > 0) {
+        objGlobals.mCountGold = objGlobals.mCountGold-objGlobalsCost.mRecycling;
 
-        if(objGlobals.mCountGold < objGlobals.mRecyclingCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mRecycling) {
             document.getElementById("recyclingCentre").style.color = "#838383";
             document.getElementById("recyclingCentre").style.cursor = "default";
         }
@@ -405,16 +414,16 @@ function purchase(el) {
         document.getElementById("pollutionRate").innerHTML = pollutionRate.toFixed(0);
 
         //increase cost of recycling centre for each additional land
-        objGlobals.mRecyclingCost *= (1.1 + (0.05 * objGlobals.mLandCount));
-        objGlobals.mRecyclingCost = objGlobals.mRecyclingCost.toFixed();
-        var cost = checkThousands(objGlobals.mRecyclingCost);
+        objGlobalsCost.mRecycling *= (1.1 + (0.05 * objGlobals.mLandCount));
+        objGlobalsCost.mRecycling = objGlobalsCost.mRecycling.toFixed();
+        var cost = checkThousands(objGlobalsCost.mRecycling);
         document.getElementById("recyclingCost").innerHTML = cost;
     
 
-    } else if(el.id ==="bank" && objGlobals.mCountGold >= objGlobals.mBankCost && objGlobals.mBankCount < objGlobals.mBankMax) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mBankCost;
+    } else if(el.id ==="bank" && objGlobals.mCountGold >= objGlobalsCost.mBank && objGlobals.mBankCount < objGlobals.mBankMax) {
+        objGlobals.mCountGold = objGlobals.mCountGold-objGlobalsCost.mBank;
 
-        if(objGlobals.mCountGold < objGlobals.mBankCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mBank) {
             document.getElementById("bank").style.color = "#838383";
             document.getElementById("bank").style.cursor = "default";
         }
@@ -423,15 +432,15 @@ function purchase(el) {
         document.getElementById("banks").innerHTML = objGlobals.mBankCount;
 
         objGlobals.mGoldRate += 3 * objGlobals.mLandMultiplier;
-        objGlobals.mBankCost *= (1.1 + (0.05 * objGlobals.mLandCount));
-        objGlobals.mBankCost = objGlobals.mBankCost.toFixed();
-        var cost = checkThousands(objGlobals.mBankCost);
+        objGlobalsCost.mBank *= (1.1 + (0.05 * objGlobals.mLandCount));
+        objGlobalsCost.mBank = objGlobalsCost.mBank.toFixed();
+        var cost = checkThousands(objGlobalsCost.mBank);
         document.getElementById("bankCost").innerHTML = cost;
 
-    } else if(el.id === "stockMarket" && objGlobals.mCountGold >= objGlobals.mStockmarketCost && objGlobals.mStockmarketCount < objGlobals.mStockmarketMax) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mStockmarketCost;
+    } else if(el.id === "stockMarket" && objGlobals.mCountGold >= objGlobalsCost.mStockmarket && objGlobals.mStockmarketCount < objGlobals.mStockmarketMax) {
+        objGlobals.mCountGold -= objGlobalsCost.mStockmarket;
 
-        if(objGlobals.mCountGold < objGlobals.mStockmarketCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mStockmarket) {
             document.getElementById("stockMarket").style.color = "#838383";
             document.getElementById("stockMarket").style.cursor = "default";
         }
@@ -440,15 +449,29 @@ function purchase(el) {
         document.getElementById("stockmarkets").innerHTML = objGlobals.mStockmarketCount;
 
         objGlobals.mGoldRate += 60 * objGlobals.mLandMultiplier;
-        objGlobals.mStockmarketCost *= (1.1 + (0.05 * objGlobals.mLandCount));
-        objGlobals.mStockmarketCost = objGlobals.mStockmarketCost.toFixed();
-        var cost = checkThousands(objGlobals.mStockmarketCost);
+        objGlobalsCost.mStockmarket *= (1.1 + (0.05 * objGlobals.mLandCount));
+        objGlobalsCost.mStockmarket = objGlobalsCost.mStockmarket.toFixed();
+        var cost = checkThousands(objGlobalsCost.mStockmarket);
         document.getElementById("stockmarketCost").innerHTML = cost;
 
-    } else if(el.id === "courthouse" && objGlobals.mCountGold >= objGlobals.mCourthouseCost && objGlobals.mCourthouseCount < objGlobals.mCourthouseMax) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mCourthouseCost;
+    } else if(el.id === "wallStreet" && objGlobals.mCountGold >= objGlobalsCost.mWallStreet && objGlobals.mWallStreetCount < 1 && objGlobals.mLandCount === 3) {
+        objGlobals.mCountGold -= objGlobalsCost.mWallStreet;
 
-        if(objGlobals.mCountGold < objGlobals.mCourthouseCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mWallStreet) {
+            document.getElementById("wallStreet").style.color = "#838383";
+            document.getElementById("wallStreet").style.cursor = "default";
+        }
+
+        objGlobals.mWallStreetCount += 1;
+        document.getElementById("wallStreets").innerHTML = objGlobals.mWallStreetCount;
+
+        objGlobals.mGoldRate += 200;
+
+    //add trade in here
+    } else if(el.id === "courthouse" && objGlobals.mCountGold >= objGlobalsCost.mCourthouse && objGlobals.mCourthouseCount < objGlobals.mCourthouseMax) {
+        objGlobals.mCountGold -= objGlobalsCost.mCourthouse;
+
+        if(objGlobals.mCountGold < objGlobalsCost.mCourthouse) {
             document.getElementById("courthouse").style.color = "#838383";
             document.getElementById("courthouse").style.cursor = "default";
         }
@@ -460,15 +483,15 @@ function purchase(el) {
         objGlobals.mCorruptionOffset -= (3 * objGlobals.mLandMultiplier);
 
         //increment price per additional land
-        objGlobals.mCourthouseCost *= (1.1 + (0.05 * objGlobals.mLandCount));
-        objGlobals.mCourthouseCost = objGlobals.mCourthouseCost.toFixed();
-        var cost = checkThousands(objGlobals.mCourthouseCost);
+        objGlobalsCost.mCourthouse *= (1.1 + (0.05 * objGlobals.mLandCount));
+        objGlobalsCost.mCourthouse = objGlobalsCost.mCourthouse.toFixed();
+        var cost = checkThousands(objGlobalsCost.mCourthouse);
         document.getElementById("courthouseCost").innerHTML = cost;
 
-    } else if(el.id ==="land" && objGlobals.mCountGold >= objGlobals.mLandCost && objGlobals.mLandCount < objGlobals.mLandMax && objGlobals.mBlnTripped) {
-        objGlobals.mCountGold = objGlobals.mCountGold-objGlobals.mLandCost;
+    } else if(el.id ==="land" && objGlobals.mCountGold >= objGlobalsCost.mLand && objGlobals.mLandCount < objGlobals.mLandMax && objGlobals.mBlnTripped) {
+        objGlobals.mCountGold -= objGlobalsCost.mLand;
 
-        if(objGlobals.mCountGold < objGlobals.mLandCost) {
+        if(objGlobals.mCountGold < objGlobalsCost.mLand) {
             document.getElementById("land").style.color = "#838383";
             document.getElementById("land").style.cursor = "default";
         }
@@ -501,25 +524,32 @@ function purchase(el) {
         document.getElementById("bank").title = "+" + (3 * objGlobals.mLandMultiplier).toFixed(1) + " gold / sec";
         document.getElementById("stockMarket").title = "+" + (60 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec";
         document.getElementById("courthouse").title = "-" + (3 * objGlobals.mLandMultiplier).toFixed(0) + " gold / sec corruption";
-        /* document.getElementById("burnCorruption").title = "-" + (3 * objGlobals.mLandMultiplier).toFixed(0) + " gold/sec corruption / 0.1 STEEM"; */
 
-        /* //reduce corruption and decay by a quarter
-        objGlobals.mCorruptionLandOffset += (objGlobals.mCorruption/4) * -1;
-        objGlobals.mDecayLandOffset += (objGlobals.mDecayRate/4) * -1; */
+        //check to enable Wall Street and International Trade
+        if(objGlobals.mLandCount ===3) {
+            document.getElementById("market").classList.add("hidden");
+            document.getElementById("tradingPost").classList.add("hidden");
+            document.getElementById("bank").classList.add("hidden");
+            document.getElementById("stockMarket").classList.add("hidden");
+            document.getElementById("wallStreet").classList.remove("hidden");
+            document.getElementById("trade").classList.remove("hidden");
+        }
+
         //reduce corruption and decay
         objGlobals.mCorruptionLandOffset -= 20;
         objGlobals.mDecayLandOffset -= 70;
 
-        objGlobals.mLandCost *= (1.1 + (0.1 * objGlobals.mLandCount));
-        objGlobals.mLandCost = objGlobals.mLandCost.toFixed();
-        var cost = checkThousands(objGlobals.mLandCost);
+        //increase subsequent land cost
+        objGlobalsCost.mLand *= (1.1 + (0.1 * objGlobals.mLandCount));
+        objGlobalsCost.mLand = objGlobalsCost.mLand.toFixed();
+        var cost = checkThousands(objGlobalsCost.mLand);
         document.getElementById("landCost").innerHTML = cost;
         
 
-    } else if(el.id ==="ai" && objGlobals.mCountGold >= 500000 && objGlobals.mAICount < 1) {
-        objGlobals.mCountGold = objGlobals.mCountGold-1000000;
+    } else if(el.id ==="ai" && objGlobals.mCountGold >= objGlobalsCost.mAi && objGlobals.mAICount < 1) {
+        objGlobals.mCountGold = objGlobals.mCountGold-objGlobalsCost.mAi;
 
-        if(objGlobals.mCountGold < 1000000) {
+        if(objGlobals.mCountGold < objGlobalsCost.mAi) {
             document.getElementById("ai").style.color = "#838383";
             document.getElementById("ai").style.cursor = "default";
         }
@@ -608,20 +638,24 @@ function upgrade(el) {
         objGlobals.mIncrement = objGlobals.mIncrement * 2;
         objGlobals.mBlnDraglineAvailable = false;
         document.getElementById("perClick").innerHTML = objGlobals.mIncrement;
+
     } else if(el.id === "mine" && objGlobals.mLandCount > 0 &&  objGlobals.mBlnMineAvailable) {
 
-        document.getElementById("dragline").style.color = "#838383";
-        document.getElementById("dragline").style.cursor = "default";
+        document.getElementById("mine").style.color = "#838383";
+        document.getElementById("mine").style.cursor = "default";
 
+        objGlobals.mMinesCount += 1;
         document.getElementById("mines").innerHTML = "1";
 
         objGlobals.mIncrement = objGlobals.mIncrement * 3;
         objGlobals.mBlnMineAvailable = false;
         document.getElementById("perClick").innerHTML = objGlobals.mIncrement;
+
     } else if(el.id === "automated" && objGlobals.mAICount === 1 &&  objGlobals.mBlnAutomatedAvailable) {
         document.getElementById("automated").style.color = "#838383";
         document.getElementById("automated").style.cursor = "default";
 
+        objGlobals.mAutomatedCount += 1;
         document.getElementById("automateds").innerHTML = "1";
 
         objGlobals.mIncrement = objGlobals.mIncrement * 5;
@@ -767,7 +801,7 @@ function gameClock() { //includes button enables
 function burnCorruption() {
     objGlobals.mSteemBurnt += 0.1;
     document.getElementById("steem").innerHTML = objGlobals.mSteemBurnt.toFixed(1);
-    objGlobals.mCorruptionOffset -= (mCorruptionBurn * objGlobals.mLandMultiplier);
+    objGlobals.mCorruptionOffset -= mCorruptionBurn;
 }
 
 function burnDecay() {
@@ -827,11 +861,71 @@ function save(el) {
     pause(document.getElementById("pause"));
     el.disabled =  true;
     window.localStorage.setItem("_globals", JSON.stringify(objGlobals));
+    window.localStorage.setItem("_globalsCost", JSON.stringify(objGlobalsCost));
 }
 
 function load() {
     objGlobals = JSON.parse(localStorage.getItem("_globals"));
+    objGlobalsCost = JSON.parse(localStorage.getItem("_globalsCost"));
+
     document.getElementById("growthRecord").innerHTML = objGlobals.mRecordRate.toFixed(1);
+
+    //set building displays
+    document.getElementById("markets").innerHTML = objGlobals.mMarketCount;
+    document.getElementById("marketMax").innerHTML = objGlobals.mMarketMax;
+    var marketCost = checkThousands(objGlobalsCost.mMarket);
+    document.getElementById("marketCost").innerHTML = marketCost;
+
+    document.getElementById("tradingPosts").innerHTML = objGlobals.mTradingPostCount;
+    document.getElementById("tradingPostMax").innerHTML = objGlobals.mTradingPostMax;
+    var tradingCost = checkThousands(objGlobalsCost.mMarket);
+    document.getElementById("tradingPostCost").innerHTML = tradingCost;
+
+    document.getElementById("banks").innerHTML = objGlobals.mBankCount;
+    document.getElementById("bankMax").innerHTML = objGlobals.mBankMax;
+    var bankCost = checkThousands(objGlobalsCost.mBank);
+    document.getElementById("bankCost").innerHTML = bankCost;
+
+    document.getElementById("stockmarkets").innerHTML = objGlobals.mStockmarketCount;
+    document.getElementById("stockmarketMax").innerHTML = objGlobals.mStockmarketMax;
+    var stockmarketCost = checkThousands(objGlobalsCost.mStockmarket);
+    document.getElementById("stockmarketCost").innerHTML = stockmarketCost;
+
+    document.getElementById("wallStreets").innerHTML = objGlobals.mWallStreetCount;
+
+    document.getElementById("trades").innerHTML = objGlobals.mTradeCount;
+
+    document.getElementById("factories").innerHTML = objGlobals.mFactoryCount;
+    document.getElementById("factoryMax").innerHTML = objGlobals.mFactoryMax;
+    var factoryCost = checkThousands(objGlobalsCost.mFactory);
+    document.getElementById("factoryCost").innerHTML = factoryCost;
+
+    document.getElementById("recyclingCentres").innerHTML = objGlobals.mRecyclingCount;
+    document.getElementById("recyclingMax").innerHTML = objGlobals.mRecyclingMax;
+    var recyclingCost = checkThousands(objGlobalsCost.mRecycling);
+    document.getElementById("recyclingCost").innerHTML = recyclingCost;
+
+    document.getElementById("courthouses").innerHTML = objGlobals.mCourhouseCount;
+    document.getElementById("courthouseMax").innerHTML = objGlobals.mCourthouseMax;
+    var courthouseCost = checkThousands(objGlobalsCost.mCourthouse);
+    document.getElementById("courthouseCost").innerHTML = courthouseCost;
+
+    document.getElementById("lands").innerHTML = objGlobals.mLandCount;
+    document.getElementById("landMax").innerHTML = objGlobals.mLandMax;
+    var landCost = checkThousands(objGlobalsCost.mLand);
+    document.getElementById("landCost").innerHTML = landCost;
+
+    document.getElementById("ais").innerHTML = objGlobals.mAICount;
+
+    //set upgrade displays
+    document.getElementById("pick_shovels").innerHTML = objGlobals.mPick_ShovelCount;
+    document.getElementById("workers").innerHTML = objGlobals.mWorkerCount;
+    document.getElementById("caffeines").innerHTML = objGlobals.mCaffeineCount;
+    document.getElementById("tnts").innerHTML = objGlobals.mTNTCount;
+    document.getElementById("draglines").innerHTML = objGlobals.mDraglinesCount;
+    document.getElementById("mines").innerHTML = objGlobals.mMinesCount;
+    document.getElementById("automateds").innerHTML = objGlobals.mAutomatedCount;
+
     resume();
     growthRate();
 }
@@ -840,9 +934,9 @@ function enableBuildings() {
     var nodes = document.getElementsByClassName("items");
 
     for (let node of nodes) {
-        for (let key of Object.keys(objGlobals)) {
-            if (node.dataset.variable == key) {   //eg. if node.dataset.variable == "mMarketCost"
-                if(objGlobals.mCountGold >= objGlobals[key]) {
+        for (let key of Object.keys(objGlobalsCost)) {
+            if (node.dataset.variable == key) {   //eg. if node.dataset.variable == "mMarket"
+                if(objGlobals.mCountGold >= objGlobalsCost[key] && objGlobals[key + "Count"] < objGlobals[key + "Max"]) {
                     node.classList.remove("disabled");
                 } else {
                     node.classList.add("disabled");
@@ -851,236 +945,9 @@ function enableBuildings() {
             }
         }
     }
+
+    //need something here for open-cut and automated mine
 }
-
-/*     if(objGlobals.mCountGold >= objGlobals.mLandCost) {
-        document.getElementById("land").style.color = "black";
-        document.getElementById("land").style.cursor = "pointer";
-        document.getElementById("stockMarket").style.color = "black";
-        document.getElementById("stockMarket").style.cursor = "pointer";
-        document.getElementById("bank").style.color = "black";
-        document.getElementById("bank").style.cursor = "pointer";
-        document.getElementById("courthouse").style.color = "black";
-        document.getElementById("courthouse").style.cursor = "pointer";
-        document.getElementById("factory").style.color = "black";
-        document.getElementById("factory").style.cursor = "pointer";
-        document.getElementById("recyclingCentre").style.color = "black";
-        document.getElementById("recyclingCentre").style.cursor = "pointer";
-        document.getElementById("tradingPost").style.color = "black";
-        document.getElementById("tradingPost").style.cursor = "pointer";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else if(objGlobals.mCountGold >= objGlobals.mStockmarketCost) {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "black";
-        document.getElementById("stockMarket").style.cursor = "pointer";
-        document.getElementById("bank").style.color = "black";
-        document.getElementById("bank").style.cursor = "pointer";
-        document.getElementById("courthouse").style.color = "black";
-        document.getElementById("courthouse").style.cursor = "pointer";
-        document.getElementById("factory").style.color = "black";
-        document.getElementById("factory").style.cursor = "pointer";
-        document.getElementById("recyclingCentre").style.color = "black";
-        document.getElementById("recyclingCentre").style.cursor = "pointer";
-        document.getElementById("tradingPost").style.color = "black";
-        document.getElementById("tradingPost").style.cursor = "pointer";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else if(objGlobals.mCountGold >= objGlobals.mCourthouseCost) {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "#838383";
-        document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "#838383";
-        document.getElementById("bank").style.cursor = "default";
-        document.getElementById("courthouse").style.color = "black";
-        document.getElementById("courthouse").style.cursor = "pointer";
-        document.getElementById("factory").style.color = "black";
-        document.getElementById("factory").style.cursor = "pointer";
-        document.getElementById("recyclingCentre").style.color = "black";
-        document.getElementById("recyclingCentre").style.cursor = "pointer";
-        document.getElementById("tradingPost").style.color = "black";
-        document.getElementById("tradingPost").style.cursor = "pointer";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else if(objGlobals.mCountGold >= objGlobals.mBankCost) {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "#838383";
-        document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "black";
-        document.getElementById("bank").style.cursor = "pointer";
-        document.getElementById("courthouse").style.color = "black";
-        document.getElementById("courthouse").style.cursor = "pointer";
-        document.getElementById("factory").style.color = "black";
-        document.getElementById("factory").style.cursor = "pointer";
-        document.getElementById("recyclingCentre").style.color = "black";
-        document.getElementById("recyclingCentre").style.cursor = "pointer";
-        document.getElementById("tradingPost").style.color = "black";
-        document.getElementById("tradingPost").style.cursor = "pointer";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else if(objGlobals.mCountGold >= objGlobals.mFactoryCost) {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "#838383";
-        document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "#838383";
-        document.getElementById("bank").style.cursor = "default";
-        document.getElementById("courthouse").style.color = "#838383";
-        document.getElementById("courthouse").style.cursor = "default";
-        document.getElementById("factory").style.color = "black";
-        document.getElementById("factory").style.cursor = "pointer";
-        document.getElementById("recyclingCentre").style.color = "black";
-        document.getElementById("recyclingCentre").style.cursor = "pointer";
-        document.getElementById("tradingPost").style.color = "black";
-        document.getElementById("tradingPost").style.cursor = "pointer";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else if(objGlobals.mCountGold >= objGlobals.mTradingPostCost) {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "#838383";
-        document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "#838383";
-        document.getElementById("bank").style.cursor = "default";
-        document.getElementById("courthouse").style.color = "#838383";
-        document.getElementById("courthouse").style.cursor = "default";
-        document.getElementById("factory").style.color = "#838383";
-        document.getElementById("factory").style.cursor = "default";
-        document.getElementById("recyclingCentre").style.color = "#838383";
-        document.getElementById("recyclingCentre").style.cursor = "default";
-        document.getElementById("tradingPost").style.color = "black";
-        document.getElementById("tradingPost").style.cursor = "pointer";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else if(objGlobals.mCountGold >= objGlobals.mMarketCost) {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "#838383";
-        document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "#838383";
-        document.getElementById("bank").style.cursor = "default";
-        document.getElementById("courthouse").style.color = "#838383";
-        document.getElementById("courthouse").style.cursor = "default";
-        document.getElementById("factory").style.color = "#838383";
-        document.getElementById("factory").style.cursor = "default";
-        document.getElementById("recyclingCentre").style.color = "#838383";
-        document.getElementById("recyclingCentre").style.cursor = "default";
-        document.getElementById("tradingPost").style.color = "#838383";
-        document.getElementById("tradingPost").style.cursor = "default";
-        document.getElementById("market").style.color = "black";
-        document.getElementById("market").style.cursor = "pointer";
-        enableUpgrades();
-        return;
-    } else {
-        document.getElementById("land").style.color = "#838383";
-        document.getElementById("land").style.cursor = "default";
-        document.getElementById("stockMarket").style.color = "#838383";
-        document.getElementById("stockMarket").style.cursor = "default";
-        document.getElementById("bank").style.color = "#838383";
-        document.getElementById("bank").style.cursor = "default";
-        document.getElementById("courthouse").style.color = "#838383";
-        document.getElementById("courthouse").style.cursor = "default";
-        document.getElementById("factory").style.color = "#838383";
-        document.getElementById("factory").style.cursor = "default";
-        document.getElementById("recyclingCentre").style.color = "#838383";
-        document.getElementById("recyclingCentre").style.cursor = "default";
-        document.getElementById("tradingPost").style.color = "#838383";
-        document.getElementById("tradingPost").style.cursor = "default";
-        document.getElementById("market").style.color = "#838383";
-        document.getElementById("market").style.cursor = "#838383";
-        enableUpgrades();
-        return;
-    } 
-}*/
-
-/* function enableUpgrades() {
-    if(objGlobals.mAICount === 1) {
-        document.getElementById("automated").style.color = "black";
-        document.getElementById("automated").style.cursor = "pointer";
-    }
-
-    if(objGlobals.mLandCount === 1) {
-        document.getElementById("mine").style.color = "black";
-        document.getElementById("mine").style.cursor = "pointer";
-    }
-
-    if(objGlobals.mCountGold >= 10000) {
-        document.getElementById("dragline").style.color = "black";
-        document.getElementById("dragline").style.cursor = "pointer";
-        document.getElementById("caffeine").style.color = "black";
-        document.getElementById("caffeine").style.cursor = "pointer";
-        document.getElementById("tnt").style.color = "black";
-        document.getElementById("tnt").style.cursor = "pointer";
-        document.getElementById("worker").style.color = "black";
-        document.getElementById("worker").style.cursor = "pointer";
-        document.getElementById("pick_shovel").style.color = "black";
-        document.getElementById("pick_shovel").style.cursor = "pointer";
-        return;
-    } else if(objGlobals.mCountGold >= 2000) {
-        document.getElementById("dragline").style.color = "#838383";
-        document.getElementById("dragline").style.cursor = "default";
-        document.getElementById("caffeine").style.color = "black";
-        document.getElementById("caffeine").style.cursor = "pointer";
-        document.getElementById("tnt").style.color = "black";
-        document.getElementById("tnt").style.cursor = "pointer";
-        document.getElementById("worker").style.color = "black";
-        document.getElementById("worker").style.cursor = "pointer";
-        document.getElementById("pick_shovel").style.color = "black";
-        document.getElementById("pick_shovel").style.cursor = "pointer";
-        return;
-    } else if(objGlobals.mCountGold >= 1000) {
-        document.getElementById("dragline").style.color = "838383";
-        document.getElementById("dragline").style.cursor = "default";
-        document.getElementById("tnt").style.color = "838383";
-        document.getElementById("tnt").style.cursor = "default";
-        document.getElementById("caffeine").style.color = "black";
-        document.getElementById("caffeine").style.cursor = "pointer";
-        document.getElementById("worker").style.color = "black";
-        document.getElementById("worker").style.cursor = "pointer";
-        document.getElementById("pick_shovel").style.color = "black";
-        document.getElementById("pick_shovel").style.cursor = "pointer";
-        return;
-    } else if(objGlobals.mCountGold >= 500) {
-        document.getElementById("dragline").style.color = "838383";
-        document.getElementById("dragline").style.cursor = "default";
-        document.getElementById("caffeine").style.color = "838383";
-        document.getElementById("caffeine").style.cursor = "default";
-        document.getElementById("tnt").style.color = "838383";
-        document.getElementById("tnt").style.cursor = "default";
-        document.getElementById("worker").style.color = "black";
-        document.getElementById("worker").style.cursor = "pointer";
-        document.getElementById("pick_shovel").style.color = "black";
-        document.getElementById("pick_shovel").style.cursor = "pointer";
-        return;
-    } else if(objGlobals.mCountGold >= 150) {
-        document.getElementById("dragline").style.color = "838383";
-        document.getElementById("dragline").style.cursor = "default";
-        document.getElementById("caffeine").style.color = "838383";
-        document.getElementById("caffeine").style.cursor = "default";
-        document.getElementById("tnt").style.color = "838383";
-        document.getElementById("tnt").style.cursor = "default";
-        document.getElementById("worker").style.color = "838383";
-        document.getElementById("worker").style.cursor = "default";
-        document.getElementById("pick_shovel").style.color = "black";
-        document.getElementById("pick_shovel").style.cursor = "pointer";
-        return;
-    }
-} */
 
 function checkThousands(int) {
     return int.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
