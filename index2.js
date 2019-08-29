@@ -56,7 +56,7 @@ objGlobals = {
     mMachineInterval: 0,
     mPollutionCount: 0,
     mPollutionRate: 0,
-    mPollutionGold: 5,  // gold/sec rate of each pollution 
+    mPollutionGold: 1,  // gold/sec rate of each pollution 
     mPollutionInterval: 0,
     mIncrementPollution: 0,
     mRecyclingCount: 0,
@@ -674,7 +674,7 @@ function incrementMachines(rate) {
     }
     
     //increase productivity
-    objGlobals.mGoldRate += 11 * rate;  //rate = (fractions of) machines/sec
+    objGlobals.mGoldRate += 3 * rate;  //rate = (fractions of) machines/sec
 }
 
 function incrementPollution(rate) { // called once per second
